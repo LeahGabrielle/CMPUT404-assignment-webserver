@@ -32,8 +32,31 @@ class MyWebServer(SocketServer.BaseRequestHandler):
     def handle(self):
         self.data = self.request.recv(1024).strip()
         print ("Got a request of: %s\n" % self.data)
-        self.request.sendall("OK")
+	self.parse_request(self.data)
+        self.request.sendall("HTTP/1.1 200 OK\n")
+        self.request.sendall("\n")
 
+    #from sberry at http://stackoverflow.com/questions/18563664/socketserver-python 
+    def parse_request(self, req):
+        headers = {}
+        lines = req.splitlines()
+        inbody = False
+        body = ''
+        for line in lines[1:]:
+            if line.strip() == "":
+                inbody = True
+            if inbody:
+                body += line
+            else:
+                k, v = line.split(":", 1)
+                headers[k.strip()] = v.strip()
+        method, path, _ = lines[0].split()
+        self.path = path.lstrip("/")
+        self.method = method
+        self.headers = headers
+        self.body = body
+	print self.headers.get('Referer')	
+    
 if __name__ == "__main__":
     HOST, PORT = "localhost", 8080
 
