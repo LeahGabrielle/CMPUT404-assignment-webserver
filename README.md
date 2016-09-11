@@ -22,3 +22,7 @@ examples thus some of the code is Copyright © 2001-2013 Python
 Software Foundation; All Rights Reserved under the PSF license (GPL
 compatible) http://docs.python.org/2/library/socketserver.html
 
+References
+==========
+
+sberry at http://stackoverflow.com/questions/18563664/socketserver-python for parsing algorithm
