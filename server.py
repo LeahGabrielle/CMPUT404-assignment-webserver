@@ -1,6 +1,6 @@
 #  coding: utf-8 
 import SocketServer
-
+import mimetypes
 # Copyright 2013 Abram Hindle, Eddie Antonio Santos
 # 
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -33,8 +33,19 @@ class MyWebServer(SocketServer.BaseRequestHandler):
         self.data = self.request.recv(1024).strip()
         print ("Got a request of: %s\n" % self.data)
 	self.parse_request(self.data)
-        self.request.sendall("HTTP/1.1 200 OK\n")
-        self.request.sendall("\n")
+        self.request.sendall("OK")
+
+# http://www.acmesystems.it/python_httpd
+    def endType(self):
+    	reply = False
+    	if (self.acceptTypes[0] == "text/html"):
+	   print "HERE"
+	   #mimetype = 'text/html'
+	   reply = True
+	if reply:
+	   f = open("www/index.html")
+	   self.request.sendall(f.read())
+	   f.close
 
     #from sberry at http://stackoverflow.com/questions/18563664/socketserver-python 
     def parse_request(self, req):
@@ -51,11 +62,20 @@ class MyWebServer(SocketServer.BaseRequestHandler):
                 k, v = line.split(":", 1)
                 headers[k.strip()] = v.strip()
         method, path, _ = lines[0].split()
+	self.acceptTypes = headers.get('Accept').split(",")
+	print self.acceptTypes
         self.path = path.lstrip("/")
         self.method = method
         self.headers = headers
         self.body = body
-	print self.headers.get('Referer')	
+	'''
+	print self.headers
+	print self.path
+	print self.method
+	print self.body	
+	'''
+	self.endType()	
+	return
     
 if __name__ == "__main__":
     HOST, PORT = "localhost", 8080
