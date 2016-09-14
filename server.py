@@ -37,13 +37,17 @@ class MyWebServer(SocketServer.BaseRequestHandler):
 
 # http://www.acmesystems.it/python_httpd
     def endType(self):
+    	print self.path
     	reply = False
     	if (self.acceptTypes[0] == "text/html"):
-	   print "HERE"
-	   #mimetype = 'text/html'
+	   mimetype = 'text/html'
 	   reply = True
+	elif (self.acceptTypes[0] == "text/css"):
+	   mimetype = 'text/css'
+	   reply = True;
 	if reply:
-	   f = open("www/index.html")
+	   #f = open('www/index.html')
+	   f = open('www/'+self.path)
 	   self.request.sendall(f.read())
 	   f.close
 
@@ -68,14 +72,14 @@ class MyWebServer(SocketServer.BaseRequestHandler):
         self.method = method
         self.headers = headers
         self.body = body
-	'''
-	print self.headers
-	print self.path
-	print self.method
-	print self.body	
-	'''
+	#print self.headers
+	#print self.path
+	print "parse self.path: " + self.path
+	#print self.method
+	#print self.body	
+	
 	self.endType()	
-	return
+	#return
     
 if __name__ == "__main__":
     HOST, PORT = "localhost", 8080
