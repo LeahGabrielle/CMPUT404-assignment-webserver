@@ -35,26 +35,38 @@ class MyWebServer(SocketServer.BaseRequestHandler):
 	self.parse_request(self.data)
         self.request.sendall("OK")
 
-    def hasExtension():
+    def hasExtension(self):
+        print " www/"+self.path
     	f = open('www/'+self.path)
 	self.request.sendall(f.read())
 	f.close
 
-    def noExtension():
-    	f = open('www/'+self.path+extension)
+    def noExtension(self, ext):
+        print ext
+    	f = open('www/'+self.path+ext)
 	self.request.sendall(f.read())
 	f.close
     
 # http://www.acmesystems.it/python_httpd
     def endType(self):
     	reply = False
+        end = self.path.split(".")
+
+        #extension = None
     	if (self.acceptTypes[0] == "text/html"):
 	   mimetype = 'text/html'
 	   extension = '.html'
 	   reply = True
 	elif (self.acceptTypes[0] == "text/css"):
 	   mimetype = 'text/css'
+           extension = '.css'
 	   reply = True;
+        if reply:
+            print end
+            if (len(end) == 1):
+                self.noExtension(extension)
+            else:
+                self.hasExtension()
 
     #from sberry at http://stackoverflow.com/questions/18563664/socketserver-python 
     def parse_request(self, req):
