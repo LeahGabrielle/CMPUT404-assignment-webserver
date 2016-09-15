@@ -33,26 +33,55 @@ class MyWebServer(SocketServer.BaseRequestHandler):
         self.data = self.request.recv(1024).strip()
         print ("Got a request of: %s\n" % self.data)
 	self.parse_request(self.data)
-        self.request.sendall("OK")
 
     def hasExtension(self):
-        print " www/"+self.path
-    	f = open('www/'+self.path)
-	self.request.sendall(f.read())
-	f.close
+        try:
+            f = open('www/'+self.path)
+            self.request.sendall(f.read())
+            f.close
+        except:
+           self.error_404()
 
     def noExtension(self, ext):
-        print ext
-    	f = open('www/'+self.path+ext)
-	self.request.sendall(f.read())
-	f.close
-    
+        try:
+            f = open('www/'+self.path+ext)
+            self.request.sendall(f.read())
+            f.close
+        except:
+            self.error_404()
+
+    def directory(self):
+        try:
+            f = open('www/'+self.path+"index.html")
+            self.request.sendall(f.read())
+            f.close
+        except:
+            self.error_404()
+
 # http://www.acmesystems.it/python_httpd
     def endType(self):
     	reply = False
+        print "PATH: "+self.path
+        extension = mimetypes.guess_type(self.path)[0]
         end = self.path.split(".")
-
-        #extension = None
+        print extension
+        if (extension == None):
+            #This means no .html, .css
+            if (self.path == "" or self.path[-1] == "/"): 
+                self.directory()
+            else:
+                if (self.acceptTypes[0] == "text/html"):
+                    extension = '.html'
+                elif (self.acceptTypes[0] == "text/css"):
+                    extension = '.css'
+                else:
+                    self.error_404()
+            
+                self.noExtension(extension)
+        else: # we got the extension from guess_type
+            self.hasExtension()
+        
+        '''
     	if (self.acceptTypes[0] == "text/html"):
 	   mimetype = 'text/html'
 	   extension = '.html'
@@ -67,8 +96,8 @@ class MyWebServer(SocketServer.BaseRequestHandler):
                 self.noExtension(extension)
             else:
                 self.hasExtension()
-
-    #from sberry at http://stackoverflow.com/questions/18563664/socketserver-python 
+        '''
+#from sberry at http://stackoverflow.com/questions/18563664/socketserver-python 
     def parse_request(self, req):
         headers = {}
         lines = req.splitlines()
@@ -84,7 +113,7 @@ class MyWebServer(SocketServer.BaseRequestHandler):
                 headers[k.strip()] = v.strip()
         method, path, _ = lines[0].split()
 	self.acceptTypes = headers.get('Accept').split(",")
-	print self.acceptTypes
+	#print self.acceptTypes
         self.path = path.lstrip("/")
         self.method = method
         self.headers = headers
@@ -96,7 +125,9 @@ class MyWebServer(SocketServer.BaseRequestHandler):
 	#print self.body	
 	
 	self.endType()	
-	#return
+
+    def error_404(self):
+        self.request.sendall("Error 404")
     
 if __name__ == "__main__":
     HOST, PORT = "localhost", 8080
