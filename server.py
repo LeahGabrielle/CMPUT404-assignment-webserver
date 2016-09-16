@@ -37,23 +37,23 @@ class MyWebServer(SocketServer.BaseRequestHandler):
         if (self.success):
             #send 200 message
             self.request.sendall("HTTP/1.1 200 OK\r\n")
-            #http://stackoverflow.com/questions/21153262/sending-html-through-python-socket-server
-            print self.content_type
-            self.request.sendall("Content-Type:"+self.content_type+"\r\n")
-
+            #from falsetru at http://stackoverflow.com/questions/21153262/sending-html-through-python-socket-server
+            #from Sarah Van Belleghem at https://github.com/vanbelle/CMPUT404-assignment-webserver
+            self.request.sendall("Content-Type: "+self.content_type+"\r\n")
+            self.request.sendall("Content-Length: "+str(len(self.content))+"\r\n\r\n")
+            self.request.sendall(self.content)
     def hasExtension(self):
         try:
             f = open('www/'+self.path)
-            self.request.sendall(f.read())
+            self.content = f.read()
             f.close
         except:
-           print "HERE I AM"
            self.error_404()
 
     def noExtension(self, ext):
         try:
             f = open('www/'+self.path+ext)
-            self.request.sendall(f.read())
+            self.content = f.read()
             f.close
         except:
             self.error_404()
@@ -61,7 +61,7 @@ class MyWebServer(SocketServer.BaseRequestHandler):
     def directory(self):
         try:
             f = open('www/'+self.path+"index.html")
-            self.request.sendall(f.read())
+            self.content = f.read()
             f.close
             self.content_type = "text/html"
         except:
@@ -69,21 +69,18 @@ class MyWebServer(SocketServer.BaseRequestHandler):
 
     def endType(self):
     	reply = False
-        #print "PATH: "+self.path
         extension = mimetypes.guess_type(self.path)[0]
-        #end = self.path.split(".")
-        #print extension
+
+        #this means no .html, .css or file specified
         if (extension == None):
-            #This means no .html, .css
+            #This is for paths ending in / or empty paths 
             if (self.path == "" or self.path[-1] == "/"): 
                 self.directory()
+            #this is files without .html, .css
             else:
-                #if (self.acceptTypes[0] == "text/html"):
-                #print self.path[-5::]
                 if (self.path[-5::] == "index"):
                     extension = '.html'
                     self.content_type = "text/html"
-                #elif (self.acceptTypes[0] == "text/css"):
                 elif (self.path[-5::] == "index"):
                     extension = '.css'
                     self.content_type = "text/css"
@@ -91,7 +88,8 @@ class MyWebServer(SocketServer.BaseRequestHandler):
                     self.error_404()
             
                 self.noExtension(extension)
-        else: # we got the extension from guess_type
+        #we got the extension from guess_type
+        else:
             self.content_type = extension
             self.hasExtension()
 
@@ -110,22 +108,16 @@ class MyWebServer(SocketServer.BaseRequestHandler):
                 k, v = line.split(":", 1)
                 headers[k.strip()] = v.strip()
         method, path, _ = lines[0].split()
-        #self.acceptTypes = headers.get('Accept').split(",")
-	#print self.acceptTypes
         self.path = path.lstrip("/")
         self.method = method
         self.headers = headers
         self.body = body
-	#print self.headers
-	#print self.path
-	#print "parse self.path: " + self.path
-	#print self.method
-	#print self.body	
-	
 	self.endType()	
 
+    #error function
     def error_404(self):
-        self.request.sendall("HTTP/1.1 404 NOT FOUND\r\n\r\n")
+        self.request.sendall("HTTP/1.1 404\r\n")
+        self.request.sendall("HTTP/1.1 404 NOT FOUND")
         self.success = False
     
 if __name__ == "__main__":
