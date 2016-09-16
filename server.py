@@ -2,6 +2,7 @@
 import SocketServer
 import mimetypes
 # Copyright 2013 Abram Hindle, Eddie Antonio Santos
+# 2016 Leah Olexson
 # 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
