@@ -26,5 +26,7 @@ References
 ==========
 
 sberry at http://stackoverflow.com/questions/18563664/socketserver-python for parsing algorithm  
-falsetru at http://stackoverflow.com/questions/21153262/sending-html-through-python-socket-server
-Sarah Van Belleghem at https://github.com/vanbelle/CMPUT404-assignment-webserver
+falsetru at http://stackoverflow.com/questions/21153262/sending-html-through-python-socket-server  
+Sarah Van Belleghem at https://github.com/vanbelle/CMPUT404-assignment-webserver  
+    
+Collaborated with Megan Sumner (https://github.com/megsum/CMPUT404-assignment-webserver)  
