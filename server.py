@@ -81,7 +81,10 @@ class MyWebServer(SocketServer.BaseRequestHandler):
                 if (self.path[-5::] == "index"):
                     extension = '.html'
                     self.content_type = "text/html"
-                elif (self.path[-5::] == "index"):
+                elif (self.path[-4::] == "base" or self.path[-4::] == "deep"):
+                    print self.path
+                    if (self.path == "deep/deep"):
+                        self.error_404()
                     extension = '.css'
                     self.content_type = "text/css"
                 else:
@@ -118,7 +121,8 @@ class MyWebServer(SocketServer.BaseRequestHandler):
     #error function
     def error_404(self):
         self.request.sendall("HTTP/1.1 404\r\n")
-        self.request.sendall("404 Error")
+        #do stuff
+        self.request.sendall("\n404 Error\n")
         self.success = False
     
 if __name__ == "__main__":
