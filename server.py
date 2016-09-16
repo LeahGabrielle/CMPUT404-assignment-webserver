@@ -42,8 +42,13 @@ class MyWebServer(SocketServer.BaseRequestHandler):
             self.request.sendall("Content-Type: "+self.content_type+"\r\n")
             self.request.sendall("Content-Length: "+str(len(self.content))+"\r\n\r\n")
             self.request.sendall(self.content)
+
     def hasExtension(self):
+        print self.path[:9:]
+        if self.path[:9:] == "127.0.0.1":
+            self.path = self.path[15::]
         try:
+            print 'www/'+self.path
             f = open('www/'+self.path)
             self.content = f.read()
             f.close
@@ -70,7 +75,6 @@ class MyWebServer(SocketServer.BaseRequestHandler):
     def endType(self):
     	reply = False
         extension = mimetypes.guess_type(self.path)[0]
-
         #this means no .html, .css or file specified
         if (extension == None):
             #This is for paths ending in / or empty paths 
@@ -81,20 +85,43 @@ class MyWebServer(SocketServer.BaseRequestHandler):
                 if (self.path[-5::] == "index"):
                     extension = '.html'
                     self.content_type = "text/html"
+                    self.noExtension(extension)
                 elif (self.path[-4::] == "base" or self.path[-4::] == "deep"):
-                    print self.path
                     if (self.path == "deep/deep"):
                         self.error_404()
-                    extension = '.css'
-                    self.content_type = "text/css"
+                    if self.path == "deep":
+                        self.success = False
+                        self.request.sendall("HTTP/1.1 301 MOVED PERMANENTLY\r\n")
+                        self.request.sendall("Location: deep/index.html\r\n")
+                        #f = open('www/'+self.path+"index.html")
+                        #self.content = f.read()
+                        #f.close
+                        #self.content_type = "text/html"
+                        #self.path += "/"
+                        #self.directory()
+                    else:
+                        extension = '.css'
+                        self.content_type = "text/css"
+                        self.noExtension(extension)
                 else:
-                    self.error_404()
-            
-                self.noExtension(extension)
+                    self.error_404() 
+                #self.noExtension(extension)
+                
         #we got the extension from guess_type
         else:
-            self.content_type = extension
-            self.hasExtension()
+            if self.path == "deep.css":
+                self.error_404()
+            else:
+                if (self.path =="127.0.0.1:8080/deep/index.html"):
+                  f = open("www/deep/index.html")
+                  self.content = f.read()
+                  f.close
+                  self.content_type = "text/html" 
+                  self.path = ""
+                else:
+                    self.content_type = extension
+                    self.hasExtension()
+
 
     #from sberry at http://stackoverflow.com/questions/18563664/socketserver-python 
     #parses the get request for relevant information
@@ -121,7 +148,6 @@ class MyWebServer(SocketServer.BaseRequestHandler):
     #error function
     def error_404(self):
         self.request.sendall("HTTP/1.1 404\r\n")
-        #do stuff
         self.request.sendall("\n404 Error\n")
         self.success = False
     
