@@ -93,7 +93,8 @@ class MyWebServer(SocketServer.BaseRequestHandler):
             self.content_type = extension
             self.hasExtension()
 
-#from sberry at http://stackoverflow.com/questions/18563664/socketserver-python 
+    #from sberry at http://stackoverflow.com/questions/18563664/socketserver-python 
+    #parses the get request for relevant information
     def parse_request(self, req):
         headers = {}
         lines = req.splitlines()
@@ -117,7 +118,7 @@ class MyWebServer(SocketServer.BaseRequestHandler):
     #error function
     def error_404(self):
         self.request.sendall("HTTP/1.1 404\r\n")
-        self.request.sendall("HTTP/1.1 404 NOT FOUND")
+        self.request.sendall("404 Error")
         self.success = False
     
 if __name__ == "__main__":
